@@ -1,11 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 import pandas as pd 
-import openpyxl 
 from tkinter import messagebox
 
 color = "#FAFDFA"
-
 
 def Fournisseur (root , clear , open_dashboard):
         clear()
@@ -116,26 +114,14 @@ def Fournisseur (root , clear , open_dashboard):
 
             try:
                 df = pd.read_excel("g_f.xlsx")
-
                 for i, row in df.iterrows():
 
-                    tableau.insert(
-                        "",
-                        "end",
-                        values=(
-                            row["NOM"],
-                            row["ADRESSE"],
-                            row["TELEPHONE"],
-                            row["EMAIL"]
-                        )
-                    )
+                    tableau.insert("","end",values=(row["NOM"],row["ADRESSE"],row["TELEPHONE"],row["EMAIL"]))
 
             except FileNotFoundError:
                 pass
 
-
         # ================= SAVE / MODIFY =================
-
         def enregistrer():
 
             nonlocal selected_item
@@ -143,22 +129,23 @@ def Fournisseur (root , clear , open_dashboard):
             N_ent = Nom_entre.get()
             A_ent = Adresse_entre.get()
             T_ent = Telephone_entre.get()
-            E_ent = Email_entre.get()
+            E_ent = Email_entre.get().lower()
 
-            if not N_ent or not A_ent or not T_ent or not E_ent:
-                messagebox.showwarning(
-                    "Attention",
-                    "Remplir tous les champs"
-                )
+            if not T_ent.isdigit():
+                messagebox.showwarning("Attention", "Le numéro doit contenir uniquement des chiffres")
+                return
+            
+            if "@" not in E_ent or "." not in E_ent:
+                messagebox.showwarning("Attention", "Email n'est pas correct")
                 return
 
-            # ===== MODIFY =====
+            if not N_ent or not A_ent or not T_ent or not E_ent:
+                messagebox.showwarning("Attention","Remplir tous les champs")
+                return
 
             if selected_item:
 
                 tableau.item(selected_item,values=(N_ent, A_ent, T_ent, E_ent))
-
-            # ===== ADD =====
 
             else:
 
@@ -183,11 +170,6 @@ def Fournisseur (root , clear , open_dashboard):
 
             df.to_excel("g_f.xlsx", index=False)
 
-            # ===== RESET =====
-
-            ajouter()
-
-
         # ================= MODIFY =================
 
         def modifier():
@@ -197,10 +179,7 @@ def Fournisseur (root , clear , open_dashboard):
             select = tableau.selection()
 
             if not select:
-                messagebox.showwarning(
-                    "Attention",
-                    "Veuillez sélectionner une ligne"
-                )
+                messagebox.showwarning("Attention","Veuillez sélectionner une ligne")
                 return
 
             item = select[0]
@@ -221,7 +200,6 @@ def Fournisseur (root , clear , open_dashboard):
             Email_entre.delete(0, END)
             Email_entre.insert(0, values[3])
 
-
         # ================= DELETE =================
 
         def supprimer():
@@ -229,10 +207,7 @@ def Fournisseur (root , clear , open_dashboard):
             selection = tableau.selection()
 
             if not selection:
-                messagebox.showwarning(
-                    "Attention",
-                    "Veuillez sélectionner une ligne"
-                )
+                messagebox.showwarning("Attention","Veuillez sélectionner une ligne")
                 return
 
             item = selection[0]
@@ -240,7 +215,6 @@ def Fournisseur (root , clear , open_dashboard):
             tableau.delete(item)
 
             # ===== SAVE AFTER DELETE =====
-
             data = []
 
             for row in tableau.get_children():
@@ -255,14 +229,8 @@ def Fournisseur (root , clear , open_dashboard):
                 })
 
             df = pd.DataFrame(data)
-
             df.to_excel("g_f.xlsx", index=False)
-
-            ajouter()
-
-
         # ================= START =================
-
         charger_donnees()
               
 
