@@ -1,82 +1,171 @@
 
-        def ajouter ():
-            Nom_entre.delete(0 , END )
-            Adresse_entre.delete(0 , END)
+        # ================= CLEAR INPUTS =================
+        selected_item = None
+        def ajouter():
+
+            nonlocal selected_item
+
+            Nom_entre.delete(0, END)
+            Adresse_entre.delete(0, END)
             Telephone_entre.delete(0, END)
-            Email_entre.delete(0 , END)
+            Email_entre.delete(0, END)
 
-        def enregistrer():
-    # 1. نجلب البيانات ونمسح الفراغات الزائدة
-            N_ent = Nom_entre.get().strip()
-            A_ent = Adresse_entre.get().strip()
-            T_ent = Telephone_entre.get().strip()
-            E_ent = Email_entre.get().strip()
-            # تأكد أن الخانات ليست فارغة (اختياري ولكن مهم)
-            if not N_ent:
-                messagebox.showwarning("تنبيه", "يرجى إدخال الاسم على الأقل!")
-                return
-
-            try:
-                # 2. نحاول قراءة الملف إذا كان موجوداً
-                try:
-                    df = pd.read_excel("g_f.xlsx")
-                except FileNotFoundError:
-                    # إذا لم يوجد الملف، ننشئ DataFrame فارغ بنفس الأعمدة
-                    df = pd.DataFrame(columns=["NOM", "ADRESSE", "TELEPHONE", "EMAIL"])
-
-                # 3. نجهز السطر الجديد (خلينا التليفون نص باش يبقى الصفر لي فاللول)
-                new_row = pd.DataFrame({
-                    "NOM": [N_ent],
-                    "ADRESSE": [A_ent],
-                    "TELEPHONE": [T_ent], 
-                    "EMAIL": [E_ent]
-                })
-
-                # 4. ندمج السطر الجديد مع البيانات القديمة
-                df = pd.concat([df, new_row], ignore_index=True)
-
-                # 5. نحفظ الكل في ملف Excel
-                df.to_excel("g_f.xlsx", index=False)
-                
-                messagebox.showinfo("نجاح", "تم تسجيل البيانات في ملف Excel بنجاح!")
-                # كيعمر الجدول بمجرد ما تفتح الصفحة
-                charger_donnees()
-                ajouter ()# نخويو الخانات مورا ما نسجلو
-
-            except Exception as e:
-                messagebox.showerror("خطأ", f"وقع مشكل أثناء الحفظ: {e}")
-
+            selected_item = None
+        # ================= LOAD DATA =================
 
         def charger_donnees():
-            # 1. كنخويو الجدول من أي معلومات قديمة
+
             for row in tableau.get_children():
                 tableau.delete(row)
-            
+
             try:
-                # 2. كنقرأو الملف
                 df = pd.read_excel("g_f.xlsx")
-                # 3. كنحطو كل سطر من Excel في الجدول
-                for index, row in df.iterrows():
-                    tableau.insert("", "end", values=(row["NOM"], row["ADRESSE"], row["TELEPHONE"], row["EMAIL"]))
+
+                for i, row in df.iterrows():
+
+                    tableau.insert(
+                        "",
+                        "end",
+                        values=(
+                            row["NOM"],
+                            row["ADRESSE"],
+                            row["TELEPHONE"],
+                            row["EMAIL"]
+                        )
+                    )
+
             except FileNotFoundError:
-                # يلا مكانش الملف، ما يدير والو
                 pass
 
-        def supprimer () :
-            selection = tableau.selection()
-            if not selection:
-                messagebox.showwarning("Attention", "Veuillez sélectionner une ligne à supprimer")
+
+        # ================= SAVE / MODIFY =================
+
+        def enregistrer():
+
+            nonlocal selected_item
+
+            N_ent = Nom_entre.get()
+            A_ent = Adresse_entre.get()
+            T_ent = Telephone_entre.get()
+            E_ent = Email_entre.get()
+
+            if not N_ent or not A_ent or not T_ent or not E_ent:
+                messagebox.showwarning(
+                    "Attention",
+                    "Remplir tous les champs"
+                )
                 return
 
-            item = selection[0]
-            tableau.delete(item)
+            # ===== MODIFY =====
 
-            # Vider les champs
+            if selected_item:
+
+                tableau.item(selected_item,values=(N_ent, A_ent, T_ent, E_ent))
+
+            # ===== ADD =====
+
+            else:
+
+                tableau.insert("",END,values=(N_ent, A_ent, T_ent, E_ent))
+
+            # ===== SAVE ALL TREEVIEW TO EXCEL =====
+
+            data = []
+
+            for row in tableau.get_children():
+
+                values = tableau.item(row, "values")
+
+                data.append({
+                    "NOM": values[0],
+                    "ADRESSE": values[1],
+                    "TELEPHONE": values[2],
+                    "EMAIL": values[3]
+                })
+
+            df = pd.DataFrame(data)
+
+            df.to_excel("g_f.xlsx", index=False)
+
+            # ===== RESET =====
+
             ajouter()
 
 
-            if index is not None:
-                data["conges"] = self.personnes[index]["conges"]
-                self.personnes[index] = data
-            else:
-                self.personnes.append(data)
+        # ================= MODIFY =================
+
+        def modifier():
+
+            nonlocal selected_item
+
+            select = tableau.selection()
+
+            if not select:
+                messagebox.showwarning(
+                    "Attention",
+                    "Veuillez sélectionner une ligne"
+                )
+                return
+
+            item = select[0]
+
+            selected_item = item
+
+            values = tableau.item(item, "values")
+
+            Nom_entre.delete(0, END)
+            Nom_entre.insert(0, values[0])
+
+            Adresse_entre.delete(0, END)
+            Adresse_entre.insert(0, values[1])
+
+            Telephone_entre.delete(0, END)
+            Telephone_entre.insert(0, values[2])
+
+            Email_entre.delete(0, END)
+            Email_entre.insert(0, values[3])
+
+
+        # ================= DELETE =================
+
+        def supprimer():
+
+            selection = tableau.selection()
+
+            if not selection:
+                messagebox.showwarning(
+                    "Attention",
+                    "Veuillez sélectionner une ligne"
+                )
+                return
+
+            item = selection[0]
+
+            tableau.delete(item)
+
+            # ===== SAVE AFTER DELETE =====
+
+            data = []
+
+            for row in tableau.get_children():
+
+                values = tableau.item(row, "values")
+
+                data.append({
+                    "NOM": values[0],
+                    "ADRESSE": values[1],
+                    "TELEPHONE": values[2],
+                    "EMAIL": values[3]
+                })
+
+            df = pd.DataFrame(data)
+
+            df.to_excel("g_f.xlsx", index=False)
+
+            ajouter()
+
+
+        # ================= START =================
+
+        charger_donnees()
+              
