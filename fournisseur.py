@@ -73,13 +73,21 @@ def Fournisseur (root , clear , open_dashboard):
         style.configure("Treeview.Heading",
                         font=("Segoe UI", 12, "bold"),
                         background="#DAE8D9")
+        
+        
 
         style.configure("Treeview",
                         font=("Bookman old style", 12),
-                        background="lightyellow")
+                        background="#F7F7EC" )
+        
+
 
         tableau = ttk.Treeview(root, columns=(1,2,3,4),
-                            height=13, show="headings", style="Treeview")
+                            height=13, show="headings", style="Treeview" )
+        
+        sc = ttk.Scrollbar(root, orient="vertical" , command=tableau.yview)
+        sc.place(x=1105, y=280 , height=293)
+        tableau.config(yscrollcommand=sc.set)
 
         tableau.heading(1, text="👥 NOM")
         tableau.heading(2, text="📍 ADRESSE")
