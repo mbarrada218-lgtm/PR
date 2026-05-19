@@ -82,6 +82,7 @@ def clear():
 # =================== afficher new face ===================
 def open_dashboard():
     from fournisseur import Fournisseur
+    from client import Client
     clear()
     root.title("TABLEAU DE GESTION DU STOCK PHARM")
     root.geometry("1200x1090")
@@ -95,12 +96,19 @@ def open_dashboard():
     F1.place(x=100 , y=100 , width=180 , height=500 )
 
     Button(F1, text=" 💊 Produits", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#A5D2F5" , fg="#0C04FE").grid(row=0 , column=0 , pady=10)   
+    
     Button(F1, text="🛒 Vente", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#D3F4D3" , fg="#014B01" ).grid(row=1 , column=0 , pady=10) 
+    
     Button(F1, text="🚚 Fournisseurs", width=20 , font=("Segoe UI", 10, "bold") ,
                    height=2 , bg="#B5A3D3" , fg="#3E039C" , command=lambda:Fournisseur(root , clear , open_dashboard)).grid(row=2 , column=0 , pady=10)
-    Button(F1, text="👥 Clients", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#E7D7B8"  , fg="#8F4903" ).grid(row=3 , column=0 , pady=10)
+    
+    Button(F1, text="👥 Clients", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#E7D7B8"  , 
+           fg="#8F4903" , command=lambda:Client(root , clear , open_dashboard) ).grid(row=3 , column=0 , pady=10)
+    
     Button(F1, text=" 📦 Stock", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#C4F0E7"  , fg="#016954").grid(row=4 , column=0 , pady=10)
+    
     Button(F1, text="📈 Rapports", width=20 , font=("Segoe UI", 10, "bold") , height=2 , bg="#F19494"  , fg="#7D1111").grid(row=5 , column=0 , pady=10)
+    
     Button(F1, text="🔒 Déconnexion",width=20, font=("Segoe UI", 10, "bold") , height=2 ,
                   bg="#9C9A9A"  , fg="#373636" ,command=exit).grid(row=6 , column=0 , pady=10)
 
